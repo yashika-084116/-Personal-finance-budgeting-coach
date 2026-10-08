@@ -74,6 +74,8 @@ def generate_ai_insights(payload: dict, api_key: str, model: str = DEFAULT_MODEL
         raise InsightsError(f"API error {e.status_code}") from e
     except anthropic.APIConnectionError as e:
         raise InsightsError("could not reach the Claude API") from e
+    except ValueError as e:  # response did not match the Insights schema (pydantic ValidationError)
+        raise InsightsError("the AI response was not in the expected format") from e
 
     if response.stop_reason == "refusal":
         raise InsightsError("the model declined to generate insights for this data")
